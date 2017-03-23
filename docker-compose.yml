@@ -1,0 +1,31 @@
+version: "2"
+
+services:
+  traefik:
+    image: traefik
+    command: -c /dev/null --web --docker --docker.domain=docker.localhost --logLevel=DEBUG
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+  users:
+    build: ./users
+    image: sriram/users:v1
+    volumes:
+      - ./users:/app
+    expose:
+      - "8001"
+    labels:
+      - "traefik.backend=users"
+      - "traefik.frontend.rule=Host:users.docker.localhost"
+  account:
+    build: ./account
+    image: sriram/account:v1
+    volumes:
+      - ./account:/app
+    expose:
+      - "8000"      
+    labels:
+      - "traefik.backend=account"
+      - "traefik.frontend.rule=Host:account.docker.localhost"

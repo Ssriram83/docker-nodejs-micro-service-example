@@ -1,0 +1,84 @@
+{
+    "containerDefinitions": [
+        {
+            "dockerLabels": {
+                "traefik.backend": "account",
+                "traefik.frontend.rule": "Host:account.docker.localhost"
+            },
+            "essential": true,
+            "image": "sriram/account:v1",
+            "mountPoints": [
+                {
+                    "containerPath": "/app",
+                    "sourceVolume": "_Account"
+                }
+            ],
+            "name": "account"
+        },
+        {
+            "command": [
+                "-c",
+                "/dev/null",
+                "--web",
+                "--docker",
+                "--docker.domain=docker.localhost",
+                "--logLevel=DEBUG"
+            ],
+            "essential": true,
+            "image": "traefik",
+            "mountPoints": [
+                {
+                    "containerPath": "/var/run/docker.sock",
+                    "sourceVolume": "VarRunDocker_Sock"
+                }
+            ],
+            "name": "traefik",
+            "portMappings": [
+                {
+                    "containerPort": 80,
+                    "hostPort": 80
+                },
+                {
+                    "containerPort": 8080,
+                    "hostPort": 8080
+                }
+            ]
+        },
+        {
+            "dockerLabels": {
+                "traefik.backend": "users",
+                "traefik.frontend.rule": "Host:users.docker.localhost"
+            },
+            "essential": true,
+            "image": "sriram/users:v1",
+            "mountPoints": [
+                {
+                    "containerPath": "/app",
+                    "sourceVolume": "_Users"
+                }
+            ],
+            "name": "users"
+        }
+    ],
+    "family": "",
+    "volumes": [
+        {
+            "host": {
+                "sourcePath": "/var/run/docker.sock"
+            },
+            "name": "VarRunDocker_Sock"
+        },
+        {
+            "host": {
+                "sourcePath": "./users"
+            },
+            "name": "_Users"
+        },
+        {
+            "host": {
+                "sourcePath": "./account"
+            },
+            "name": "_Account"
+        }
+    ]
+}
